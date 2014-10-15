@@ -84,16 +84,34 @@ namespace WindowsFormsApplication
                         g.DrawLine(Pens.Black, sp, ep);
                     }
             }
-
+            position.direction += 1.0f;
+            if (position.direction >= 180.0f)
+            {
+                position.direction -= 360.0f; 
+            }
+            target.direction -= 1.0f;
+            if (target.direction <= 180.0f)
+            {
+                target.direction += 360.0f;
+            }
             {   // position circles
                 int radius = 20;
+                float directionLength = 20.0f;
                 {   // position
                     Rectangle rect = new Rectangle((int)position.pos.x - (radius / 2), (int)position.pos.y - (radius / 2), radius, radius);
                     g.DrawEllipse(Pens.Red, rect);
+                    Point sp = new Point((int)position.pos.x, (int)position.pos.y);
+                    Point ep = new Point((int)(position.pos.x + (int)(directionLength * Math.Cos(Math.PI * position.direction / 180.0f)))
+                                       , (int)(position.pos.y + (int)(directionLength * Math.Sin(Math.PI * position.direction / 180.0f))));
+                    g.DrawLine(Pens.Blue, sp, ep);
                 }
                 {   // position
                     Rectangle rect = new Rectangle((int)target.pos.x - (radius / 2), (int)target.pos.y - (radius / 2), radius, radius);
                     g.DrawEllipse(Pens.Green, rect);
+                    Point sp = new Point((int)target.pos.x, (int)target.pos.y);
+                    Point ep = new Point((int)(target.pos.x + (int)(directionLength * Math.Cos(Math.PI * target.direction / 180.0f)))
+                                       , (int)(target.pos.y + (int)(directionLength * Math.Sin(Math.PI * target.direction / 180.0f))));
+                    g.DrawLine(Pens.Green, sp, ep);
                 }
             }
             Update();
