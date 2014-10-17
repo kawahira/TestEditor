@@ -131,7 +131,7 @@ namespace GenerateMap
                                     break;
                                 }
                             }
-                            // 新規として一度登録したResultに同じ場所への道があれば、登録をしない
+                            // 新規として一度登録したResultに同じ場所への道があれば、登録をしない(これを処理しないと同じテリトリーに複数の道が出来る（これもよい）)
                             if (active)
                             {
                                 foreach (tempResult t in result)
@@ -153,7 +153,7 @@ namespace GenerateMap
                 }
             }
 
-            // 最終的な総数の中から、要求数の道を生成する
+            // 最終的な総数の中から、要求数の道をランダムに抽選してから生成する
             int max = Math.Min(createMax, result.Count);
             for (int i = 0; i < max; i++)
             {

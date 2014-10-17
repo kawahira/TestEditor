@@ -13,7 +13,11 @@ namespace GenerateMap
         }
         public void Line(int x0, int y0, int x1, int y1, int icon, bool check = false)
         {
-            // 今のところ垂直、水平しか使わないので斜めが必要になったら作る
+            if ( (x0 != x1) && (y0 != y1) )
+            {
+                // 今のところ垂直、水平しか使わないので斜めが必要になったら作る
+                throw new IndexOutOfRangeException();
+            }
             Fill(x0, y0, x1, y1, icon, check);
         }
 
