@@ -13,7 +13,7 @@ namespace WindowsFormsApplication
 {
     public partial class Form1 : Form
     {
-        private GenerateMap.Generator map = new GenerateMap.Generator();
+        public GenerateMap.Generator map;
         private Timer timer = new Timer();
         private Image backbuffer;
         private int mouseX, mouseY;
@@ -58,7 +58,7 @@ namespace WindowsFormsApplication
             float hsize = 10 * g.DpiX / 72;
             g.DrawString("Mouse  X: " + mouseX + " Y:" + mouseY, this.Font, brush, 2, hsize * 0);
             int idx = 1 ;
-            foreach (GenerateMap.Territory r in map.lists.territory)
+            foreach (GenerateMap.Territory r in map.territory)
                 {
                     //                g.DrawString("LX" + r.lx + "LY" + r.ly + "HX" + r.hx + "HY" + r.hy, this.Font, brush, 2, hsize * idx);
                     ++idx;
@@ -85,14 +85,14 @@ namespace WindowsFormsApplication
                 listBrush.Add(new SolidBrush(Color.Brown));
                 listBrush.Add(new SolidBrush(Color.CadetBlue));
                 listBrush.Add(new SolidBrush(Color.Coral));
-                for (int i = 0; i < map.config.width; i++)
+                for (int i = 0; i < map.GetConfig().width; i++)
                 {
-                    for (int j = 0; j < map.config.height; j++)
+                    for (int j = 0; j < map.GetConfig().height; j++)
                     {
                         Rectangle re = new Rectangle((i * blocksize), (j * blocksize),blocksize, blocksize);
-                        if (map.entity[i, j] != 0)
+                        if (map.mapchip.entity[i, j] != 0)
                         {
-                            g.FillRectangle(listBrush[map.entity[i, j]], re);
+                            g.FillRectangle(listBrush[map.mapchip.entity[i, j]], re);
                         }
                     }
                 }

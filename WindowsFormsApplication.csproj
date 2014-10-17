@@ -51,6 +51,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="GenerateMap\Config.cs" />
     <Compile Include="GenerateMap\Generator.cs" />
     <Compile Include="GenerateMap\Mapchip.cs" />
     <Compile Include="GenerateMap\Replace.cs" />

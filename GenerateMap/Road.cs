@@ -13,12 +13,12 @@ namespace GenerateMap
         public Direction direction;
         public Territory t0;
         public Territory t1;
-        public Road(ref Lists lists, Territory r0, Territory r1, Direction dir)
+        public Road(ref List<Road> roadList, Territory r0, Territory r1, Direction dir)
         {
             t0 = r0;
             t1 = r1;
-            lists.road.Add(this);
             direction = dir;
+            roadList.Add(this);
         }
         public void Build(ref Mapchip mapchip , int icon)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GenerateMap
 {
@@ -8,22 +9,22 @@ namespace GenerateMap
         private bool done_split_h;
         public int lx, ly, hx, hy;
         public Room room;
-        public Territory(ref Lists lists, int x1, int y1, int x2, int y2)
+        public Territory(ref List<Territory> territoryList, int x1, int y1, int x2, int y2)
         {
             lx = x1;
             ly = y1;
             hx = x2;
             hy = y2;
-            lists.territory.Add(this);
+            territoryList.Add(this);
         }
-        public void split(ref Lists lists, ushort minTerritorySize)
+        public void split(ref List<Territory> territoryList, ref List<Road> roadList, ushort minTerritorySize)
         {
             // Clip Check.
             if ((this.hy - this.ly) <= (minTerritorySize * 2)) this.done_split_v = true;
             if ((this.hx - this.lx) <= (minTerritorySize * 2)) this.done_split_h = true;
             if ((this.done_split_v) && (this.done_split_h)) return;
 
-            Territory child = new Territory(ref lists, this.lx, this.ly, this.hx, this.hy);
+            Territory child = new Territory(ref territoryList, this.lx, this.ly, this.hx, this.hy);
 
             // どちらかしか同時に行わない
             if (this.done_split_v == false)
@@ -38,7 +39,7 @@ namespace GenerateMap
                     this.done_split_v = true;
                     child.done_split_v = true;
                 }
-                new Road(ref lists, this, child,Road.Direction.Veritical);
+                new Road(ref roadList, this, child, Road.Direction.Veritical);
             }
             else
             {
@@ -52,10 +53,10 @@ namespace GenerateMap
                     this.done_split_h = true;
                     child.done_split_h = true;
                 }
-                new Road(ref lists, this, child, Road.Direction.Horizonal);
+                new Road(ref roadList, this, child, Road.Direction.Horizonal);
             }
-            this.split(ref lists, minTerritorySize);
-            child.split(ref lists, minTerritorySize);
+            this.split(ref territoryList,ref roadList, minTerritorySize);
+            child.split(ref territoryList, ref roadList, minTerritorySize);
         }
     };
 }

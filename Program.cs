@@ -17,8 +17,20 @@ namespace WindowsFormsApplication
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
             RandXorShift.Instance.Seed(1);
-            Application.Run(new Form1());
+            GenerateMap.Config config = new GenerateMap.Config();
+
+            config.minRoomSize      = 8;
+            config.marginRoomSize   = 3;
+            config.height           = 400 / 4;
+            config.width            = 400 / 4;
+            config.addRoadMax       = 100;
+
+            Form1 f = new Form1();
+            f.map = new GenerateMap.Generator(config);
+
+            Application.Run(f);
 
         }
     }
