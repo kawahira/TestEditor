@@ -1,88 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Generate
+namespace GenerateMap
 {
-    public class Map
+    public class Lists
     {
-        public class Replace
+        public List<Territory> territory = new List<Territory>();
+        public List<Road> road = new List<Road>();
+        public void BuildWall(ref Mapchip mapchip, int icon)
         {
-            public int org;
-            public int rep;
-        }
-        public List<Replace[,]> replaceList = new List<Replace[,]>();
-        void ReplaceDataDebug()
-        {
-            {   // 「をカーブに変形
-                int icon = 3;
-                Replace[,] topleft = new Replace[5, 5];
-                for (int i = 0; i < topleft.GetLength(0); i++)
-                {
-                    for (int j = 0; j < topleft.GetLength(1); j++)
-                    {
-                        topleft[i, j] = new Replace();
-                    }
-                }
-                for (int i = 0; i < 4; i++)
-                {
-                    topleft[i + 1, 1].org = icon;
-                    topleft[1, i + 1].org = icon;
-                }
-                topleft[1, 3].rep = icon;
-                topleft[1, 4].rep = icon;
-                topleft[2, 2].rep = icon;
-                topleft[2, 3].rep = icon;
-                topleft[3, 1].rep = icon;
-                topleft[3, 2].rep = icon;
-                topleft[4, 1].rep = icon;
-                replaceList.Add(topleft);
-            }
-        }
-        bool ChackSame(Replace[,] r, int x, int y)
-        {
-            for (int i = 0; i < r.GetLength(0); i++)
+            foreach (Territory r in territory)
             {
-                for (int j = 0; j < r.GetLength(1); j++)
-                {
-                    if (entity[x + i, y + j] != r[i, j].org) return false;
-                }
+                mapchip.Line(r.room.lx, r.room.ly, r.room.hx, r.room.ly, icon);
+                mapchip.Line(r.room.lx, r.room.hy, r.room.hx, r.room.hy, icon);
+                mapchip.Line(r.room.lx, r.room.ly, r.room.lx, r.room.hy, icon);
+                mapchip.Line(r.room.hx, r.room.ly, r.room.hx, r.room.hy, icon);
             }
-            return true;
         }
-        void Copy(Replace[,] r, int x, int y)
+        public void BuildFloor(ref Mapchip mapchip, int icon)
         {
-            for (int i = 0; i < r.GetLength(0); i++)
+            foreach (Territory r in territory)
             {
-                for (int j = 0; j < r.GetLength(1); j++)
-                {
-                    entity[x + i, y + j] = r[i, j].rep;
-                }
+                mapchip.Fill(r.room.lx + 1, r.room.ly + 1, r.room.hx - 1, r.room.hy - 1, icon);
             }
         }
-        void ReplaceA()
-        {
-            ReplaceDataDebug();
-            foreach (Replace[,] r in replaceList)
-            {
-                int w = config.width - r.GetLength(0);
-                int h = config.height - r.GetLength(1);
-                for (int i = 0; i < w; i++)
-                {
-                    for (int j = 0; j < h; j++)
-                    {
-                        if (ChackSame(r, i, j))
-                        {
-                            Copy(r, i, j);
-                        }
-                    }
-                }
-            }
-        }
-        public enum Direction
-        {
-            Veritical = 0,
-            Horizonal = 1
-        }
+    };
+
+    public class Generator
+    {
+        public Lists lists = new Lists();
+        public Mapchip mapchip;
         public struct Config
         {
             public ushort height;
@@ -99,12 +46,6 @@ namespace Generate
         }
         public Config config;
         public int[,] entity;
-        public class Lists
-        {
-            public List<Territory> territory = new List<Territory>();
-            public List<Road> road = new List<Road>();
-        };
-        public Lists lists = new Lists();
         public ushort minTerritorySize
         {
             get
@@ -113,14 +54,15 @@ namespace Generate
             }
         }
 
-        public Map()
+        public Generator()
         {
-            config.minRoomSize = 8;
+            config.minRoomSize = 5;
             config.marginRoomSize = 2;
             config.height = 400 / 4;
             config.width = 400 / 4;
-            config.addRoadRandomRate = 100;
+            config.addRoadRandomRate = 4;
             entity = new int[config.width, config.height];
+            mapchip = new Mapchip(config.width, config.height);
             (new Territory(ref lists, 0, 0, config.width - 1, config.height - 1)).split(ref lists, minTerritorySize);
             foreach (Territory r in lists.territory)
             {   // 区画が全てfixしてから全区画に対して部屋生成
@@ -129,12 +71,31 @@ namespace Generate
             //            TerritoryToMap();
             AddRoad(config.addRoadRandomRate);
             RoomToWall(4);
+            lists.BuildWall(ref mapchip, 4);
             RoadToMap(3);
             RoomToFloor(2);
-            ReplaceA();
-            RoadToWall(3, 5);
-            RoadToWall(5, 6);
-            RoadToWall(4, 7);
+            lists.BuildFloor(ref mapchip, 2);
+            {
+                //                (new Replace()).CopyAll(config.width, config.height, ref entity);
+            }
+            /*
+                        RoadToWall(3, 5);
+                        RoadToWall(5, 6);
+                        RoadToWall(4, 7);
+                        mapchip.AroundReplace(3, 5);
+                        mapchip.AroundReplace(5, 6);
+                        mapchip.AroundReplace(4, 7);
+            */
+            for (int i = 1; i < entity.GetLength(0) - 1; i++)
+            {
+                for (int j = 1; j < entity.GetLength(1) - 1; j++)
+                {
+                    if (entity[i, j] != mapchip.entity[i, j])
+                    {
+                        break;
+                    }
+                }
+            }
         }
         void FillCheck(int x, int y, int icon)
         {
@@ -157,9 +118,23 @@ namespace Generate
                 }
             }
         }
-        private void AddRoad(int randomMax)
+        struct tempResult
         {
+            public Territory t0;
+            public Territory t1;
+            public int direction;
+            public tempResult(Territory te1, Territory te2, int dir)
+            {
+                t0 = te1;
+                t1 = te2;
+                direction = dir;
+            }
+        }
+        private void AddRoad(ushort createMax)
+        {
+            if ( createMax == 0 ) return;
             Territory[,] refmap = new Territory[config.width, config.height];
+            List<tempResult> result = new List<tempResult>();
             foreach (Territory r in lists.territory)
             {
                 for (int i = r.lx; i < r.hx; i++)
@@ -170,49 +145,57 @@ namespace Generate
                     }
                 }
             }
+            int[,] tbl = new int[,] { { 0, -1 }, { 0, -1 }, { +1, -1 }, { -1, 0 }, { +1, 0 }, { -1, +1 }, { 0, +1 }, { +1, +1 } };
             for (int i = 0; i < config.width - 2; i++)
             {
                 for (int j = 0; j < config.height - 2; j++)
                 {
-                    if (refmap[i, j] != refmap[i, j + 1] && RandXorShift.Instance.Stage.Next(0, randomMax) == 0)
+                    // 下方向に対する検索
+                    Territory r0 = refmap[i, j];        // 基準
+                    Territory r1 = refmap[i, j + 1];    // 比較（下側)
+                    Territory r2 = refmap[i + 1, j];    // 比較 (右側)
+                    for (int k = 0; k < 2; k++)
                     {
-                        Territory r0 = refmap[i, j];
-                        Territory r1 = refmap[i, j + 1];
-                        bool active = true;
-                        foreach (Road r in lists.road)
+                        if (r0 != r1)
                         {
-                            if (r.t0 == r0 || r.t0 == r1)
+                            bool active = true;
+                            // すでに存在している道に同じ経路があれば登録をしない
+                            foreach (Road r in lists.road)
                             {
-                                if (r.t1 == r0 || r.t1 == r1)
+                                if ((r.t0 == r0 || r.t0 == r1) && (r.t1 == r0 || r.t1 == r1))
                                 {
                                     active = false;
                                     break;
                                 }
                             }
-                        }
-                        if (active)
-                        {
-                            new Road(ref lists, Direction.Veritical, r0, r1);
-                        }
-                    }
-                    if (refmap[i, j] != refmap[i + 1, j] && RandXorShift.Instance.Stage.Next(0, randomMax) == 0)
-                    {
-                        Territory r0 = refmap[i, j];
-                        Territory r1 = refmap[i + 1, j];
-                        bool active = true;
-                        foreach (Road r in lists.road)
-                        {
-                            if (r.t0 == r0 || r.t0 == r1 && r.t1 == r0 || r.t1 == r1)
+                            // 新規として一度登録したResultに同じ場所への道があれば、登録をしない
+                            if (active)
                             {
-                                active = false;
-                                break;
+                                foreach (tempResult t in result)
+                                {
+                                    if ((t.t0 == r0 || t.t0 == r1) && (t.t1 == r0 || t.t1 == r1))
+                                    {
+                                        active = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (active)
+                            {
+                                result.Add(new tempResult(r0, r1, k));
                             }
                         }
-                        if (active)
-                        {
-                            new Road(ref lists, Direction.Horizonal, r0, r1);
-                        }
+                        r1 = r2;    // 横方向に対する検索に対象を切り替え
                     }
+                }
+            }
+            {
+                int max = Math.Min(createMax,result.Count);
+                for (int i = 0; i < max; i ++ )
+                {
+                    int idx = RandXorShift.Instance.Stage.Next(0, result.Count);
+                    new Road(ref lists, result[idx].t0, result[idx].t1, result[idx].direction == 0 ? Road.Direction.Veritical : Road.Direction.Horizonal);
+                    result.RemoveAt(idx);
                 }
             }
         }
@@ -228,6 +211,7 @@ namespace Generate
         }
         private void RoomToFloor(int icon)
         {
+
             foreach (Territory r in lists.territory)
             {
                 for (int i = r.room.lx + 1; i < r.room.hx; i++)
@@ -276,26 +260,40 @@ namespace Generate
             max_x = Math.Max(x0, x1);
             min_y = Math.Min(y0, y1);
             max_y = Math.Max(y0, y1);
+            // H:横
+            // V:縦
             if ((x0 <= x1) && (y0 >= y1))   // [↗]左下から右上に
             {
+                mapchip.Line(min_x, max_y, max_x, max_y, icon);      //   |
+                mapchip.Line(max_x, min_y, max_x, max_y, icon);     // ---+
+
                 FillEntityHorizon(min_x, max_y, max_x, icon);       //    |
                 FillEntityVeritical(max_x, min_y, max_y, icon);     // ---+
                 return;
             };
             if ((x0 > x1) && (y0 > y1))     // [↖]右下から左上に
             {
+                mapchip.Line(min_x, min_y, max_x, min_y, icon);     // ---+
+                mapchip.Line(max_x, min_y, max_x, max_y, icon);     //    |
+
                 FillEntityHorizon(min_x, min_y, max_x, icon);       // ---+
                 FillEntityVeritical(max_x, min_y, max_y, icon);     //    |
                 return;
             };
             if ((x0 > x1) && (y0 <= y1))    // [↙]右上から左下に
             {
+                mapchip.Line(min_x, min_y, max_x, min_y, icon);     // +---
+                mapchip.Line(min_x, min_y, min_x, max_y, icon);     // |
+
                 FillEntityHorizon(min_x, min_y, max_x, icon);       // +---
                 FillEntityVeritical(min_x, min_y, max_y, icon);     // |
                 return;
             };
             if ((x0 <= x1) && (y0 < y1))   // [↘]左上から右下に
             {
+                mapchip.Line(min_x, max_y, max_x, max_y, icon);     // |
+                mapchip.Line(min_x, min_y, min_x, max_y, icon);     // +---
+
                 FillEntityHorizon(min_x, max_y, max_x, icon);       // |
                 FillEntityVeritical(min_x, min_y, max_y, icon);     // +---
                 return;
@@ -308,7 +306,7 @@ namespace Generate
             {
                 switch (c.direction)
                 {
-                    case Direction.Horizonal:
+                    case Road.Direction.Horizonal:
                         c0x = c.t0.hx;
                         c0y = RandXorShift.Instance.Stage.Next(c.t0.room.ly + 2, c.t0.room.hy - 2);
                         c1x = c.t1.lx;
@@ -317,7 +315,7 @@ namespace Generate
                         LineToMap(c.t0.room.hx, c0y, c0x, c0y, icon);
                         LineToMap(c.t1.room.lx, c1y, c1x, c1y, icon);
                         break;
-                    case Direction.Veritical:
+                    case Road.Direction.Veritical:
                         c0x = RandXorShift.Instance.Stage.Next(c.t0.room.lx + 2, c.t0.room.hx - 2); // 接続する部屋.1までのX座標(random)
                         c0y = c.t0.hy;                                                             // 接続領域.1のY座標を固定化
                         c1x = RandXorShift.Instance.Stage.Next(c.t1.room.lx + 2, c.t1.room.hx - 2); // 接続する部屋.2までのX座標(random)
@@ -340,98 +338,5 @@ namespace Generate
                 for (i = r.hx, j = r.ly; j <= r.hy; j++) entity[i, j] = 1;
             }
         }
-        public class Room
-        {
-            public int lx, ly, hx, hy;
-            public Room(int sx, int sy, int ex, int ey, byte minRoomSize, byte marginRoomSize)
-            {
-                int w, h;
-                w = RandXorShift.Instance.Stage.Next(minRoomSize, ex - sx - (marginRoomSize * 2) + 1);
-                h = RandXorShift.Instance.Stage.Next(minRoomSize, ey - sy - (marginRoomSize * 2) + 1);
-                float distX = (float)((float)w / (float)(ex - sx));
-                if (distX < 0.4f)
-                {
-                    //                    w *= 3;
-                }
-                float distY = (float)((float)h / (float)(ey - sy));
-                if (distY < 0.4f)
-                {
-                    //                    h *= 3;
-                }
-                lx = RandXorShift.Instance.Stage.Next(sx + marginRoomSize, ex - marginRoomSize - w + 1);
-                ly = RandXorShift.Instance.Stage.Next(sy + marginRoomSize, ey - marginRoomSize - h + 1);
-                hx = lx + w;
-                hy = ly + h;
-            }
-        };
-        public class Territory
-        {
-            private bool done_split_v;
-            private bool done_split_h;
-            public int lx, ly, hx, hy;
-            public Room room;
-            public Territory(ref Lists lists, int x1, int y1, int x2, int y2)
-            {
-                lx = x1;
-                ly = y1;
-                hx = x2;
-                hy = y2;
-                lists.territory.Add(this);
-            }
-            public void split(ref Lists lists, ushort minTerritorySize)
-            {
-                // Clip Check.
-                if ((this.hy - this.ly) <= (minTerritorySize * 2)) this.done_split_v = true;
-                if ((this.hx - this.lx) <= (minTerritorySize * 2)) this.done_split_h = true;
-                if ((this.done_split_v) && (this.done_split_h)) return;
-
-                Territory child = new Territory(ref lists, this.lx, this.ly, this.hx, this.hy);
-
-                // どちらかしか同時に行わない
-                if (this.done_split_v == false)
-                {
-                    int split_coord_y;
-                    split_coord_y = RandXorShift.Instance.Stage.Next(this.ly + minTerritorySize, this.hy - minTerritorySize);
-                    this.hy = split_coord_y;
-                    child.ly = split_coord_y;
-                    if (!((this.hy - this.ly) >= (minTerritorySize * 3)
-                    && (child.hy - child.ly) >= (minTerritorySize * 3)))
-                    {
-                        this.done_split_v = true;
-                        child.done_split_v = true;
-                    }
-                    new Road(ref lists, Direction.Veritical, this, child);
-                }
-                else
-                {
-                    int split_coord_x;
-                    split_coord_x = RandXorShift.Instance.Stage.Next(this.lx + minTerritorySize, this.hx - minTerritorySize);
-                    this.hx = split_coord_x;
-                    child.lx = split_coord_x;
-                    if (!((this.hx - this.lx) >= (minTerritorySize * 3)
-                    && (child.hx - child.lx) >= (minTerritorySize * 3)))
-                    {
-                        this.done_split_h = true;
-                        child.done_split_h = true;
-                    }
-                    new Road(ref lists, Direction.Horizonal, this, child);
-                }
-                this.split(ref lists, minTerritorySize);
-                child.split(ref lists, minTerritorySize);
-            }
-        };
-        public class Road
-        {
-            public Direction direction;
-            public Territory t0;
-            public Territory t1;
-            public Road(ref Lists lists, Direction vh, Territory r0, Territory r1)
-            {
-                direction = vh;
-                t0 = r0;
-                t1 = r1;
-                lists.road.Add(this);
-            }
-        };
     }
 }

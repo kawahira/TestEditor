@@ -51,7 +51,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="GenerateMap\GenerateMap.cs" />
+    <Compile Include="GenerateMap\Generator.cs" />
+    <Compile Include="GenerateMap\Mapchip.cs" />
+    <Compile Include="GenerateMap\Replace.cs" />
+    <Compile Include="GenerateMap\Road.cs" />
+    <Compile Include="GenerateMap\Room.cs" />
+    <Compile Include="GenerateMap\Territory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandXorShift.cs" />

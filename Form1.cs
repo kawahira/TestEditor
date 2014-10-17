@@ -13,7 +13,7 @@ namespace WindowsFormsApplication
 {
     public partial class Form1 : Form
     {
-        private Generate.Map map = new Generate.Map();
+        private GenerateMap.Generator map = new GenerateMap.Generator();
         private Timer timer = new Timer();
         private Image backbuffer;
         private int mouseX, mouseY;
@@ -58,7 +58,7 @@ namespace WindowsFormsApplication
             float hsize = 10 * g.DpiX / 72;
             g.DrawString("Mouse  X: " + mouseX + " Y:" + mouseY, this.Font, brush, 2, hsize * 0);
             int idx = 1 ;
-            foreach (Generate.Map.Territory r in map.lists.territory)
+            foreach (GenerateMap.Territory r in map.lists.territory)
                 {
                     //                g.DrawString("LX" + r.lx + "LY" + r.ly + "HX" + r.hx + "HY" + r.hy, this.Font, brush, 2, hsize * idx);
                     ++idx;
