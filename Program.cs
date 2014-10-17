@@ -29,10 +29,15 @@ namespace WindowsFormsApplication
             config.iconRoomWall = 4;
             config.iconRoad = 3;
             config.iconRoomFloor = 2;
+            config.randomSeed = 1;
+
+            GenerateMap.Replace r = new GenerateMap.Replace();
+            r.CreateDebugData(3);
+            config.replaceList.Add(r);
 
             Form1 f = new Form1();
-            f.generator = new GenerateMap.Generator(config);
-            f.generator.Build(1);
+            f.generator = new GenerateMap.Generator();
+            f.generator.Build(config);
 
             Application.Run(f);
 

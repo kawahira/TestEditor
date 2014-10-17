@@ -1,9 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GenerateMap
 {
-    public struct Config
+    public class Config
     {
+        public struct Icon
+        {
+            ushort room;
+            ushort floor;
+            ushort road;
+        }
+        public int randomSeed;
         public ushort height;
         public ushort width;
         public byte minRoomSize;
@@ -18,5 +26,6 @@ namespace GenerateMap
         
         public byte iconRoad;
         public byte iconRoadWall;
+        public List<Replace> replaceList = new List<Replace>();
     }
 }

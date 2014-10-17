@@ -18,15 +18,12 @@ namespace GenerateMap
         }
         public Config GetConfig() { return config; }
 
-        public Generator(Config cfg)
+        public void Build(Config cfg)
         {
             config = cfg;
-        }
-        public void Build(int seed = 0)
-        {
-            if (seed != 0)
+            if (config.randomSeed != 0)
             {   // 乱数初期化 ( 0 なら初期化せず )
-                RandXorShift.Instance.Stage.Seed(seed);
+                RandXorShift.Instance.Stage.Seed(config.randomSeed);
             }
 
             // リストクリア
@@ -35,42 +32,49 @@ namespace GenerateMap
 
             // mapchipバッファを確保
             mapchip = new Mapchip(config.width, config.height);
-            
-            // テリトリー生成と最小限の道を作成
-            (new Territory(ref territory, 0, 0, config.width - 1, config.height - 1)).split(ref territory, ref road, minTerritorySize);
 
-            // 部屋の生成
-            foreach (Territory r in territory)
+            // テリトリー生成と最低限の道と部屋の設定
             {
-                r.room = new Room(r.lx, r.ly, r.hx, r.hy, config.minRoomSize, config.marginRoomSize);
+                Territory root = new Territory(ref territory, 0, 0, config.width - 1, config.height - 1);
+                root.Build(ref territory, ref road, minTerritorySize, config.minRoomSize, config.marginRoomSize);
             }
 
-            // 道の追加生成
+            // 道の追加生成(迷わせるための道)
             AddRoad(config.addRoadMax);
 
+            // 道を実際に接続する
+            foreach (Road r in road)
+            {
+                r.Connect();
+            }
+
+            RenderToMapchip();
+        }
+        private void RenderToMapchip()
+        {
             // 部屋の壁をmapchipにfeedback
             foreach (Territory r in territory)
             {
-                mapchip.Line(r.room.lx, r.room.ly, r.room.hx, r.room.ly, config.iconRoomWall);
-                mapchip.Line(r.room.lx, r.room.hy, r.room.hx, r.room.hy, config.iconRoomWall);
-                mapchip.Line(r.room.lx, r.room.ly, r.room.lx, r.room.hy, config.iconRoomWall);
-                mapchip.Line(r.room.hx, r.room.ly, r.room.hx, r.room.hy, config.iconRoomWall);
+                r.DrawBefore(ref mapchip, config.iconRoomWall);
             }
 
             // 道をmapchipにfeedback
             foreach (Road r in road)
             {
-                r.Build(ref mapchip, config.iconRoad);
+                r.Draw(ref mapchip, config.iconRoad);
             }
 
             // 部屋の床をmapchipにfeedback
             foreach (Territory r in territory)
             {
-                mapchip.Fill(r.room.lx + 1, r.room.ly + 1, r.room.hx - 1, r.room.hy - 1, config.iconRoomFloor);
+                r.DrawAfter(ref mapchip, config.iconRoomFloor);
             }
 
             // mapchipの特定パターンを置換
-            (new Replace()).Build(config.width, config.height, ref mapchip);
+            foreach ( Replace r in config.replaceList )
+            {
+                r.Draw(ref mapchip, config.width, config.height);
+            }
 
             // mapchipの指定番号の周りの空白を指定番号に置換
             mapchip.AroundReplace(3, 5);

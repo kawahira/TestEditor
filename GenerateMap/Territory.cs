@@ -17,7 +17,15 @@ namespace GenerateMap
             hy = y2;
             territoryList.Add(this);
         }
-        public void split(ref List<Territory> territoryList, ref List<Road> roadList, ushort minTerritorySize)
+        public void Build(ref List<Territory> territoryList, ref List<Road> roadList, ushort minTerritorySize,byte minRoomSize, byte marginRoomSize)
+        {
+            Split(ref territoryList, ref roadList, minTerritorySize);
+            foreach (Territory r in territoryList)
+            {
+                r.room = new Room(r.lx, r.ly, r.hx, r.hy, minRoomSize, marginRoomSize);
+            }
+        }
+        private void Split(ref List<Territory> territoryList, ref List<Road> roadList, ushort minTerritorySize)
         {
             // Clip Check.
             if ((this.hy - this.ly) <= (minTerritorySize * 2)) this.done_split_v = true;
@@ -55,8 +63,19 @@ namespace GenerateMap
                 }
                 new Road(ref roadList, this, child, Road.Direction.Horizonal);
             }
-            this.split(ref territoryList,ref roadList, minTerritorySize);
-            child.split(ref territoryList, ref roadList, minTerritorySize);
+            this.Split(ref territoryList, ref roadList, minTerritorySize);
+            child.Split(ref territoryList, ref roadList, minTerritorySize);
+        }
+        public void DrawBefore(ref Mapchip mapchip, int icon)
+        {
+            mapchip.Line(room.lx, room.ly, room.hx, room.ly, icon);
+            mapchip.Line(room.lx, room.hy, room.hx, room.hy, icon);
+            mapchip.Line(room.lx, room.ly, room.lx, room.hy, icon);
+            mapchip.Line(room.hx, room.ly, room.hx, room.hy, icon);
+        }
+        public void DrawAfter(ref Mapchip mapchip, int icon)
+        {
+            mapchip.Fill(room.lx + 1, room.ly + 1, room.hx - 1, room.hy - 1, icon);
         }
     };
 }

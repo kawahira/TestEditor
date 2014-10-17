@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GenerateMap
 {
-    class Replace
+    public class Replace
     {
         private class Data
         {
@@ -14,11 +14,11 @@ namespace GenerateMap
             public int rep;
         }
         private List<Data[,]> replaceList = new List<Data[,]>();
-        void CreateDebugData()
+        public void CreateDebugData(int icon)
         {
             {   // 「をカーブに変形
-                int icon = 3;
                 Data[,] topleft = new Data[5, 5];
+                int[,] tbl = new int[,] { { 1, 3 }, { 1, 4 }, { 2, 2 }, { 2, 3 }, { 3, 1 }, { 3, 2 }, { 4, 1 } };
                 for (int i = 0; i < topleft.GetLength(0); i++)
                 {
                     for (int j = 0; j < topleft.GetLength(1); j++)
@@ -28,16 +28,12 @@ namespace GenerateMap
                 }
                 for (int i = 0; i < 4; i++)
                 {
-                    topleft[i + 1, 1].org = icon;
-                    topleft[1, i + 1].org = icon;
+                    topleft[i + 1, 1].org = topleft[1, i + 1].org = icon;
                 }
-                topleft[1, 3].rep = icon;
-                topleft[1, 4].rep = icon;
-                topleft[2, 2].rep = icon;
-                topleft[2, 3].rep = icon;
-                topleft[3, 1].rep = icon;
-                topleft[3, 2].rep = icon;
-                topleft[4, 1].rep = icon;
+                for (int i = 0; i < tbl.GetLength(0); i ++  )
+                {
+                    topleft[tbl[i, 0], tbl[i, 1]].rep = icon;
+                }
                 replaceList.Add(topleft);
             }
         }
@@ -63,9 +59,8 @@ namespace GenerateMap
                 }
             }
         }
-        public void Build(int mapwidth , int mapheight, ref Mapchip mapchip)
+        public void Draw(ref Mapchip mapchip, int mapwidth , int mapheight)
         {
-            CreateDebugData();
             foreach (Data[,] r in replaceList)
             {
                 int w = mapwidth - r.GetLength(0);
