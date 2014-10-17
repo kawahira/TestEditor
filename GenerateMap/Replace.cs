@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Racanhack 法により自動生成
+// original source http://racanhack.sourceforge.jp/rhdoc/index.html 
+
+using System;
 using System.Collections.Generic;
 
 namespace GenerateMap

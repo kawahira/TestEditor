@@ -34,35 +34,26 @@ namespace GenerateMap
 
             Territory child = new Territory(ref territoryList, this.lx, this.ly, this.hx, this.hy);
 
+            Road.Direction direction = Road.Direction.Veritical;
             // どちらかしか同時に行わない
             if (this.done_split_v == false)
             {
-                int split_coord_y;
-                split_coord_y = RandXorShift.Instance.Stage.Next(this.ly + minTerritorySize, this.hy - minTerritorySize);
-                this.hy = split_coord_y;
-                child.ly = split_coord_y;
-                if (!((this.hy - this.ly) >= (minTerritorySize * 3)
-                && (child.hy - child.ly) >= (minTerritorySize * 3)))
+                this.hy = child.ly = RandXorShift.Instance.Stage.Next(this.ly + minTerritorySize, this.hy - minTerritorySize);
+                if (!((this.hy - this.ly) >= (minTerritorySize * 3) && (child.hy - child.ly) >= (minTerritorySize * 3)))
                 {
-                    this.done_split_v = true;
-                    child.done_split_v = true;
+                    this.done_split_v = child.done_split_v = true;
                 }
-                new Road(ref roadList, this, child, Road.Direction.Veritical);
             }
             else
             {
-                int split_coord_x;
-                split_coord_x = RandXorShift.Instance.Stage.Next(this.lx + minTerritorySize, this.hx - minTerritorySize);
-                this.hx = split_coord_x;
-                child.lx = split_coord_x;
-                if (!((this.hx - this.lx) >= (minTerritorySize * 3)
-                && (child.hx - child.lx) >= (minTerritorySize * 3)))
+                this.hx = child.lx = RandXorShift.Instance.Stage.Next(this.lx + minTerritorySize, this.hx - minTerritorySize);
+                if (!((this.hx - this.lx) >= (minTerritorySize * 3) && (child.hx - child.lx) >= (minTerritorySize * 3)))
                 {
-                    this.done_split_h = true;
-                    child.done_split_h = true;
+                    this.done_split_h = child.done_split_h = true;
                 }
-                new Road(ref roadList, this, child, Road.Direction.Horizonal);
+                direction = Road.Direction.Horizonal;
             }
+            new Road(ref roadList, this, child, direction);
             this.Split(ref territoryList, ref roadList, minTerritorySize);
             child.Split(ref territoryList, ref roadList, minTerritorySize);
         }
