@@ -63,7 +63,7 @@ namespace GenerateMap
                 }
             }
         }
-        public void CopyAll(int mapwidth , int mapheight, ref int[,] entity)
+        public void Build(int mapwidth , int mapheight, ref Mapchip mapchip)
         {
             CreateDebugData();
             foreach (Data[,] r in replaceList)
@@ -74,9 +74,9 @@ namespace GenerateMap
                 {
                     for (int j = 0; j < h; j++)
                     {
-                        if (ChackSame(ref entity, r, i, j))
+                        if (ChackSame(ref mapchip.entity, r, i, j))
                         {
-                            Copy(ref entity , r, i, j);
+                            Copy(ref mapchip.entity, r, i, j);
                         }
                     }
                 }

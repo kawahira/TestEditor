@@ -24,6 +24,13 @@ namespace GenerateMap
                 mapchip.Fill(r.room.lx + 1, r.room.ly + 1, r.room.hx - 1, r.room.hy - 1, icon);
             }
         }
+        public void BuildRoad(ref Mapchip mapchip, int icon)
+        {
+            foreach (Road r in road)
+            {
+                r.Build(ref mapchip, icon);
+            }
+        }
     };
 
     public class Generator
@@ -56,11 +63,11 @@ namespace GenerateMap
 
         public Generator()
         {
-            config.minRoomSize = 5;
-            config.marginRoomSize = 2;
+            config.minRoomSize = 8;
+            config.marginRoomSize = 1;
             config.height = 400 / 4;
             config.width = 400 / 4;
-            config.addRoadRandomRate = 4;
+            config.addRoadRandomRate = 0;
             entity = new int[config.width, config.height];
             mapchip = new Mapchip(config.width, config.height);
             (new Territory(ref lists, 0, 0, config.width - 1, config.height - 1)).split(ref lists, minTerritorySize);
@@ -68,16 +75,15 @@ namespace GenerateMap
             {   // 区画が全てfixしてから全区画に対して部屋生成
                 r.room = new Room(r.lx, r.ly, r.hx, r.hy, config.minRoomSize, config.marginRoomSize);
             }
-            //            TerritoryToMap();
+//            TerritoryToMap(1);
             AddRoad(config.addRoadRandomRate);
             RoomToWall(4);
             lists.BuildWall(ref mapchip, 4);
-            RoadToMap(3);
+//          RoadToMap(3);
+//          lists.BuildRoad(ref mapchip, 3);
             RoomToFloor(2);
             lists.BuildFloor(ref mapchip, 2);
-            {
-                //                (new Replace()).CopyAll(config.width, config.height, ref entity);
-            }
+//                (new Replace()).Build(config.width, config.height, ref mapchip);
             /*
                         RoadToWall(3, 5);
                         RoadToWall(5, 6);
@@ -276,7 +282,7 @@ namespace GenerateMap
                 mapchip.Line(min_x, min_y, max_x, min_y, icon);     // ---+
                 mapchip.Line(max_x, min_y, max_x, max_y, icon);     //    |
 
-                FillEntityHorizon(min_x, min_y, max_x, icon);       // ---+
+                FillEntityHorizon(  min_x, min_y, max_x, icon);       // ---+
                 FillEntityVeritical(max_x, min_y, max_y, icon);     //    |
                 return;
             };
@@ -327,15 +333,15 @@ namespace GenerateMap
                 }
             }
         }
-        void TerritoryToMap()
+        void TerritoryToMap(int icon)
         {
             int i, j;
             foreach (Territory r in lists.territory)
             {
-                for (i = r.lx, j = r.ly; i <= r.hx; i++) entity[i, j] = 1;
-                for (i = r.lx, j = r.hy; i <= r.hx; i++) entity[i, j] = 1;
-                for (i = r.lx, j = r.ly; j <= r.hy; j++) entity[i, j] = 1;
-                for (i = r.hx, j = r.ly; j <= r.hy; j++) entity[i, j] = 1;
+                for (i = r.lx, j = r.ly; i <= r.hx; i++) entity[i, j] = icon;
+                for (i = r.lx, j = r.hy; i <= r.hx; i++) entity[i, j] = icon;
+                for (i = r.lx, j = r.ly; j <= r.hy; j++) entity[i, j] = icon;
+                for (i = r.hx, j = r.ly; j <= r.hy; j++) entity[i, j] = icon;
             }
         }
     }
