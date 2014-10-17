@@ -17,7 +17,9 @@ namespace WindowsFormsApplication
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            RandXorShift.Instance.Seed(1);
             Application.Run(new Form1());
+
         }
     }
 }
