@@ -31,8 +31,8 @@ namespace WindowsFormsApplication
             config.iconRoomFloor = 2;
             config.randomSeed = 1;
 
-            GenerateMap.Replace r = new GenerateMap.Replace();
-            r.CreateDebugData(3);
+            Replace.Data.Road r = new Replace.Data.Road();
+            r.Curve1(config.iconRoad, 30);
             config.replaceList.Add(r);
 
             Form1 f = new Form1();
