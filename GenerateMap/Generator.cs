@@ -16,20 +16,63 @@ namespace GenerateMap
                 return (ushort)(config.minRoomSize + (config.marginRoomSize * 2));
             }
         }
-        public Config GetConfig() { return config;  }
+        public Config GetConfig() { return config; }
+
         public Generator(Config cfg)
         {
             config = cfg;
+        }
+        public void Build(int seed = 0)
+        {
+            if (seed != 0)
+            {   // 乱数初期化 ( 0 なら初期化せず )
+                RandXorShift.Instance.Stage.Seed(seed);
+            }
+
+            // リストクリア
+            territory.Clear();
+            road.Clear();
+
+            // mapchipバッファを確保
             mapchip = new Mapchip(config.width, config.height);
-            (new Territory(ref territory, 0, 0, config.width - 1, config.height - 1)).split(ref territory,ref road, minTerritorySize);
-            //            TerritoryToMap(1);
-            BuildRoom(config.minRoomSize, config.marginRoomSize);
+            
+            // テリトリー生成と最小限の道を作成
+            (new Territory(ref territory, 0, 0, config.width - 1, config.height - 1)).split(ref territory, ref road, minTerritorySize);
+
+            // 部屋の生成
+            foreach (Territory r in territory)
+            {
+                r.room = new Room(r.lx, r.ly, r.hx, r.hy, config.minRoomSize, config.marginRoomSize);
+            }
+
+            // 道の追加生成
             AddRoad(config.addRoadMax);
 
-            DrawWall(4);
-            DrawRoad(3);
-            DrawFloor(2);
+            // 部屋の壁をmapchipにfeedback
+            foreach (Territory r in territory)
+            {
+                mapchip.Line(r.room.lx, r.room.ly, r.room.hx, r.room.ly, config.iconRoomWall);
+                mapchip.Line(r.room.lx, r.room.hy, r.room.hx, r.room.hy, config.iconRoomWall);
+                mapchip.Line(r.room.lx, r.room.ly, r.room.lx, r.room.hy, config.iconRoomWall);
+                mapchip.Line(r.room.hx, r.room.ly, r.room.hx, r.room.hy, config.iconRoomWall);
+            }
+
+            // 道をmapchipにfeedback
+            foreach (Road r in road)
+            {
+                r.Build(ref mapchip, config.iconRoad);
+            }
+
+            // 部屋の床をmapchipにfeedback
+            foreach (Territory r in territory)
+            {
+                mapchip.Fill(r.room.lx + 1, r.room.ly + 1, r.room.hx - 1, r.room.hy - 1, config.iconRoomFloor);
+            }
+
+            // mapchipの特定パターンを置換
             (new Replace()).Build(config.width, config.height, ref mapchip);
+
+            // mapchipの指定番号の周りの空白を指定番号に置換
             mapchip.AroundReplace(3, 5);
             mapchip.AroundReplace(5, 6);
             mapchip.AroundReplace(4, 7);
@@ -105,43 +148,14 @@ namespace GenerateMap
                     }
                 }
             }
+
+            // 最終的な総数の中から、要求数の道を生成する
             int max = Math.Min(createMax, result.Count);
             for (int i = 0; i < max; i++)
             {
                 int idx = RandXorShift.Instance.Stage.Next(0, result.Count);
                 new Road(ref road, result[idx].t0, result[idx].t1, result[idx].direction == 0 ? Road.Direction.Veritical : Road.Direction.Horizonal);
                 result.RemoveAt(idx);
-            }
-        }
-        public void DrawWall(int icon)
-        {
-            foreach (Territory r in territory)
-            {
-                mapchip.Line(r.room.lx, r.room.ly, r.room.hx, r.room.ly, icon);
-                mapchip.Line(r.room.lx, r.room.hy, r.room.hx, r.room.hy, icon);
-                mapchip.Line(r.room.lx, r.room.ly, r.room.lx, r.room.hy, icon);
-                mapchip.Line(r.room.hx, r.room.ly, r.room.hx, r.room.hy, icon);
-            }
-        }
-        public void DrawFloor(int icon)
-        {
-            foreach (Territory r in territory)
-            {
-                mapchip.Fill(r.room.lx + 1, r.room.ly + 1, r.room.hx - 1, r.room.hy - 1, icon);
-            }
-        }
-        public void DrawRoad(int icon)
-        {
-            foreach (Road r in road)
-            {
-                r.Build(ref mapchip, icon);
-            }
-        }
-        public void BuildRoom(byte minRoomSize, byte marginRoomSize)
-        {
-            foreach (Territory r in territory)
-            {
-                r.room = new Room(r.lx, r.ly, r.hx, r.hy, minRoomSize, marginRoomSize);
             }
         }
         /*        
