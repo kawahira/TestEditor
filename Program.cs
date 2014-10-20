@@ -30,14 +30,22 @@ namespace WindowsFormsApplication
             config.iconRoad = 3;
             config.iconRoomFloor = 2;
             config.randomSeed = 1;
+            config.startCount = 1;
+            config.goalCount = 1;
 
             Replace.Data.Road r = new Replace.Data.Road();
             r.Curve1(config.iconRoad, 30);
             config.replaceList.Add(r);
 
+
             Form1 f = new Form1();
             f.generator = new GenerateMap.Generator();
             f.generator.Build(config);
+
+            f.pathFinder = new SpatialAStar.PathFinder(config.width, config.height);
+            f.pathFinder.SetTile(f.generator.mapchip.entity, config.iconRoomWall);
+
+//            f.pathFinder.Get(f.pathFinderResult, );
 
             Application.Run(f);
 

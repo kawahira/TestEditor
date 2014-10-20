@@ -20,6 +20,7 @@ namespace GenerateMap
         public int c0y;
         public int c1x;
         public int c1y;
+        public float length;
 
         public Road(ref List<Road> roadList, Territory r0, Territory r1, Direction dir)
         {
@@ -28,12 +29,12 @@ namespace GenerateMap
             direction = dir;
             roadList.Add(this);
         }
-        public void Draw(ref Mapchip mapchip, int icon)
+        public void Draw(ref Mapchip mapchip, byte icon)
         {
             bool ret = direction == Road.Direction.Horizonal;
-            lines(ref mapchip, c0x, c0y, c1x, c1y, icon);                  // 境界同士の接続
-            lines(ref mapchip, ret ? t0.room.hx : c0x, ret ? c0y : t0.room.hy, c0x, c0y, icon);
-            lines(ref mapchip, ret ? t1.room.lx : c1x, ret ? c1y : t1.room.ly, c1x, c1y, icon);
+            length += lines(ref mapchip, c0x, c0y, c1x, c1y, icon);                  // 境界同士の接続
+            length += lines(ref mapchip, ret ? t0.room.hx : c0x, ret ? c0y : t0.room.hy, c0x, c0y, icon);
+            length += lines(ref mapchip, ret ? t1.room.lx : c1x, ret ? c1y : t1.room.ly, c1x, c1y, icon);
         }
         public void Connect()
         {
@@ -43,8 +44,10 @@ namespace GenerateMap
             c0y = ret ? RandXorShift.Instance.Stage.Next(t0.room.ly + padding, t0.room.hy - padding) : t0.hy; // 接続領域.1のY座標を固定化 
             c1x = ret ? t1.lx : RandXorShift.Instance.Stage.Next(t1.room.lx + padding, t1.room.hx - padding); // 接続する部屋.2までのX座標
             c1y = ret ? RandXorShift.Instance.Stage.Next(t1.room.ly + padding, t1.room.hy - padding) : t1.ly; // 接続領域.2のY座標を固定化
+            t0.room.roadList.Add(this);
+            t1.room.roadList.Add(this);
         }
-        private void lines(ref Mapchip mapchip, int x0, int y0, int x1, int y1, int icon)
+        private float lines(ref Mapchip mapchip, int x0, int y0, int x1, int y1, byte icon)
         {
             int index = 0; // 初期値は[↗]左下から右上に
             int min_x = Math.Min(x0, x1);
@@ -64,6 +67,9 @@ namespace GenerateMap
             }
             mapchip.Line(ids[index, 0, 0], ids[index, 0, 1], ids[index, 0, 2], ids[index, 0, 3], icon);
             mapchip.Line(ids[index, 1, 0], ids[index, 1, 1], ids[index, 1, 2], ids[index, 1, 3], icon);
+            int x = max_x - min_x;
+            int y = max_y - min_y;
+            return (float)Math.Sqrt((x * x) + (y * y));
         }
     };
 }

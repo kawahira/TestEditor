@@ -8,7 +8,7 @@ namespace Replace.Data
 {
     public class Road : GenerateMap.Replace
     {
-        public void Curve1(int icon, float rate)
+        public void Curve1(byte icon, float rate)
         {
             // 「をカーブに変形
             Datas datas = new Datas();

@@ -14,6 +14,8 @@ namespace WindowsFormsApplication
     public partial class Form1 : Form
     {
         public GenerateMap.Generator generator;
+        public SpatialAStar.PathFinder pathFinder;
+        public SpatialAStar.Result pathFinderResult;
         private Timer timer = new Timer();
         private Image backbuffer;
         private int mouseX, mouseY;

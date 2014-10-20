@@ -12,6 +12,8 @@ namespace GenerateMap
         public List<Road> road = new List<Road>();
         public Mapchip mapchip;
         private Config config;
+        public List<Room> start = new List<Room>();
+        public List<Room> goal = new List<Room>();
         public ushort minTerritorySize
         {
             get
@@ -52,6 +54,42 @@ namespace GenerateMap
             }
 
             RenderToMapchip();
+
+            for (int i = 0; i < config.startCount; i++)
+            {
+                start.Add(territory[RandXorShift.Instance.Stage.Next(0, territory.Count)].room);
+            }
+            {
+                for ( int i = 0 ; i < config.goalCount ; i ++ )
+                {
+                    int farIndex = -1;
+                    double max = -1.0f;
+                    int count = 0;
+                    int sindex = 0;
+                    foreach (Territory t in territory)
+                    {
+                        if (start[sindex].index != t.room.index)
+                        {
+                            start[sindex].GoalNode = t.room;
+                            Node.Pathfinding.AStar astar = new Node.Pathfinding.AStar();
+                            astar.FindPath(start[sindex], t.room);
+                            double totalcost = ((Room)astar.Solution[astar.Solution.Count - 1]).TotalCost;
+                            Console.WriteLine(totalcost);
+                            if (totalcost >= max)
+                            {
+                                max = totalcost;
+                                farIndex = count;
+                            }
+                        }
+                        ++count;
+                    }
+                    if (farIndex != -1)
+                    {
+                        goal.Add(territory[RandXorShift.Instance.Stage.Next(0, territory.Count)].room);
+                    }
+                    goal.Add(territory[farIndex].room);
+                }
+            }
         }
         private void RenderToMapchip()
         {
@@ -74,7 +112,7 @@ namespace GenerateMap
             }
 
             // mapchipの特定パターンを置換
-            foreach ( Replace r in config.replaceList )
+            foreach (Replace r in config.replaceList)
             {
                 r.Draw(ref mapchip, config.width, config.height);
             }

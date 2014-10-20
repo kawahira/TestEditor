@@ -8,13 +8,13 @@ namespace GenerateMap
 {
     public class Mapchip
     {
-        static int NoIconID = 0;
-        public int[,] entity;
+        static byte NoIconID = 0;
+        public byte[,] entity;
         public Mapchip(int w, int h)
         {
-            entity = new int[w,h];
+            entity = new byte[w, h];
         }
-        public void Line(int x0, int y0, int x1, int y1, int icon, bool check = false)
+        public void Line(int x0, int y0, int x1, int y1, byte icon, bool check = false)
         {
             if ( (x0 != x1) && (y0 != y1) )
             {
@@ -24,7 +24,7 @@ namespace GenerateMap
             Fill(x0, y0, x1, y1, icon, check);
         }
 
-        public void Fill(int x, int y, int w, int h, int icon, bool check = false)
+        public void Fill(int x, int y, int w, int h, byte icon, bool check = false)
         {
             if (check == true && (CheckArea(x, y, w, h, NoIconID) == false)) return;
             for (int i = x; i <= w; i++)
@@ -35,7 +35,7 @@ namespace GenerateMap
                 }
             }
         }
-        public bool CheckArea(int x, int y, int w, int h,int icon)
+        public bool CheckArea(int x, int y, int w, int h, byte icon)
         {
             for (int i = x; i <= w ; i++)
             {
@@ -46,7 +46,7 @@ namespace GenerateMap
             }
             return true;
         }
-        public void AroundReplace(int searchIcon, int replaceIcon)
+        public void AroundReplace(byte searchIcon, byte replaceIcon)
         {
             int[,] tbl = new int[,] { { -1, -1 }, { 0, -1 }, { +1, -1 }, { -1, 0 }, { +1, 0 }, { -1, +1 }, { 0, +1 }, { +1, +1 } };
             for (int i = 1; i < entity.GetLength(0) - 1; i++)

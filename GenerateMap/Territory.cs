@@ -20,9 +20,13 @@ namespace GenerateMap
         public void Build(ref List<Territory> territoryList, ref List<Road> roadList, ushort minTerritorySize,byte minRoomSize, byte marginRoomSize)
         {
             Split(ref territoryList, ref roadList, minTerritorySize);
+            int count = 0;
             foreach (Territory r in territoryList)
             {
-                r.room = new Room(r.lx, r.ly, r.hx, r.hy, minRoomSize, marginRoomSize);
+                r.room = new Room(null,null,0.0);
+                r.room.Build(r.lx, r.ly, r.hx, r.hy, minRoomSize, marginRoomSize);
+                r.room.index = count;
+                ++count;
             }
         }
         private void Split(ref List<Territory> territoryList, ref List<Road> roadList, ushort minTerritorySize)
@@ -57,14 +61,14 @@ namespace GenerateMap
             this.Split(ref territoryList, ref roadList, minTerritorySize);
             child.Split(ref territoryList, ref roadList, minTerritorySize);
         }
-        public void DrawBefore(ref Mapchip mapchip, int icon)
+        public void DrawBefore(ref Mapchip mapchip, byte icon)
         {
             mapchip.Line(room.lx, room.ly, room.hx, room.ly, icon);
             mapchip.Line(room.lx, room.hy, room.hx, room.hy, icon);
             mapchip.Line(room.lx, room.ly, room.lx, room.hy, icon);
             mapchip.Line(room.hx, room.ly, room.hx, room.hy, icon);
         }
-        public void DrawAfter(ref Mapchip mapchip, int icon)
+        public void DrawAfter(ref Mapchip mapchip, byte icon)
         {
             mapchip.Fill(room.lx + 1, room.ly + 1, room.hx - 1, room.hy - 1, icon);
         }

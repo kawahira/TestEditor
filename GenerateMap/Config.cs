@@ -15,6 +15,8 @@ namespace GenerateMap
             ushort road;
         }
         public int randomSeed;
+        public int startCount;
+        public int goalCount;
         public ushort height;
         public ushort width;
         public byte minRoomSize;

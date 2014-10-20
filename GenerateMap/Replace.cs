@@ -10,8 +10,8 @@ namespace GenerateMap
     {
         public class Data
         {
-            public int org;
-            public int rep;
+            public byte org;
+            public byte rep;
         }
         public class Datas
         {
@@ -20,7 +20,7 @@ namespace GenerateMap
         }
         public List<Datas> replaceList = new List<Datas>();
 
-        bool ChackSame(ref int[,] entity, Data[,] r, int x, int y)
+        bool ChackSame(ref byte[,] entity, Data[,] r, int x, int y)
         {
             for (int i = 0; i < r.GetLength(0); i++)
             {
@@ -31,7 +31,7 @@ namespace GenerateMap
             }
             return true;
         }
-        void Copy(ref int[,] entity , Data[,] r, int x, int y)
+        void Copy(ref byte[,] entity, Data[,] r, int x, int y)
         {
             for (int i = 0; i < r.GetLength(0); i++)
             {

@@ -59,9 +59,20 @@
     <Compile Include="GenerateMap\Road.cs" />
     <Compile Include="GenerateMap\Room.cs" />
     <Compile Include="GenerateMap\Territory.cs" />
+    <Compile Include="NodeASter\AStar.cs" />
+    <Compile Include="NodeASter\Heap.cs" />
+    <Compile Include="NodeASter\NodeAster.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandXorShift.cs" />
+    <Compile Include="SpatialAStar\AuthorAttribute.cs" />
+    <Compile Include="SpatialAStar\IPathFinder.cs" />
+    <Compile Include="SpatialAStar\PathFinder.cs" />
+    <Compile Include="SpatialAStar\PathFinderFast.cs" />
+    <Compile Include="SpatialAStar\PathFinderHelper.cs" />
+    <Compile Include="SpatialAStar\Point.cs" />
+    <Compile Include="SpatialAStar\PriorityQueueB.cs" />
+    <Compile Include="SpatialAStar\SpatialStar.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -87,6 +98,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
